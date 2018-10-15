@@ -1,2 +1,2 @@
 # anaTool
-An tool to aid analyses using the LArSoft framework
+A tool to aid analyses using the LArSoft framework
