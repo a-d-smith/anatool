@@ -20,15 +20,16 @@ public:
      *  @brief  Default constructor
      *
      *  @param  event the event
+     *  @param  defaultLabel the default producer label
      */
-    ObjectGetter(const art::Event &event);
+    ObjectGetter(const art::Event *pEvent, const std::string &defaultLabel);
 
     /**
      *  @brief  Get the PFParticles with the given label
      *
      *  @param  label the label of the PFParticle producer
      */
-    PFParticleVector GetPFParticles(const std::string &label);
+    PFParticleVector GetPFParticles(const std::string &label = "");
 
     /**
      *  @brief  Get the clusters associated with the input PFParticle
@@ -39,7 +40,7 @@ public:
      *
      *  @param  the associated clusters
      */
-    ClusterVector GetAssociatedClusters(const PFParticle_p &particle, const std::string &pfParticleLabel, const std::string &associationLabel);
+    ClusterVector GetAssociatedClusters(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
     /**
      *  @brief  Get the space points associated with the input PFParticle
@@ -50,7 +51,7 @@ public:
      *
      *  @param  the associated space points
      */
-    SpacePointVector GetAssociatedSpacePoints(const PFParticle_p &particle, const std::string &pfParticleLabel, const std::string &associationLabel);
+    SpacePointVector GetAssociatedSpacePoints(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
     /**
      *  @brief  Get the vertex associated with the input PFParticle
@@ -61,7 +62,51 @@ public:
      *
      *  @param  the associated vertex
      */
-    Vertex_p GetAssociatedVertex(const PFParticle_p &particle, const std::string &pfParticleLabel, const std::string &associationLabel);
+    Vertex_p GetAssociatedVertex(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
+    
+    /**
+     *  @brief  Check if the input PFParticle has an associated track
+     *
+     *  @param  particle the PFParticle
+     *  @param  pfParticleLabel the label of the PFParticle producer
+     *  @param  associationLabel the label of the association producer
+     *
+     *  @param  if there is an associated track
+     */
+    bool HasAssociatedTrack(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
+    
+    /**
+     *  @brief  Check if the input PFParticle has an associated shower
+     *
+     *  @param  particle the PFParticle
+     *  @param  pfParticleLabel the label of the PFParticle producer
+     *  @param  associationLabel the label of the association producer
+     *
+     *  @param  if there is an associated shower
+     */
+    bool HasAssociatedShower(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
+    
+    /**
+     *  @brief  Get the track associated with the input PFParticle
+     *
+     *  @param  particle the PFParticle
+     *  @param  pfParticleLabel the label of the PFParticle producer
+     *  @param  associationLabel the label of the association producer
+     *
+     *  @param  the associated track
+     */
+    Track_p GetAssociatedTrack(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
+    
+    /**
+     *  @brief  Get the shower associated with the input PFParticle
+     *
+     *  @param  particle the PFParticle
+     *  @param  pfParticleLabel the label of the PFParticle producer
+     *  @param  associationLabel the label of the association producer
+     *
+     *  @param  the associated shower
+     */
+    Shower_p GetAssociatedShower(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
     /**
      *  @brief  Get the hits associated with the input Cluster
@@ -72,7 +117,7 @@ public:
      *
      *  @param  the associated hits
      */
-    HitVector GetAssociatedHits(const Cluster_p &cluster, const std::string &clusterLabel, const std::string &associationLabel);
+    HitVector GetAssociatedHits(const Cluster_p &cluster, const std::string &clusterLabel = "", const std::string &associationLabel = "");
     
     /**
      *  @brief  Get the hit associated with the input SpacePoint
@@ -83,7 +128,7 @@ public:
      *
      *  @param  the associated hits
      */
-    Hit_p GetAssociatedHit(const SpacePoint_p &spacePoint, const std::string &spacePointLabel, const std::string &associationLabel);
+    Hit_p GetAssociatedHit(const SpacePoint_p &spacePoint, const std::string &spacePointLabel = "", const std::string &associationLabel = "");
 
 private:
     template <class T>
@@ -94,6 +139,15 @@ private:
 
     template <class T>
     using CollectionNameMap = std::unordered_map<std::string, CollectionHandle<T> >;
+
+    /**
+     *  @breif  Check if the input label is empty, and if so return the default label
+     *
+     *  @param  label the input label
+     *
+     *  @return a valid label
+     */
+    std::string GetValidLabel(const std::string &label) const;
 
     /**
      *  @brief  Get a collection of an arbitrary type from the event
@@ -143,7 +197,8 @@ private:
     template<class A, class B>
     art::Ptr<A> GetSingleAssociated(const art::Ptr<B> &object, const CollectionHandle<B> &handle, const std::string &label) const;
 
-    art::Event                            m_event;                 ///< The Event
+    const art::Event                     *m_pEvent;                ///< The Event
+    std::string                           m_defaultLabel;          ///< The default producer label to use when getting collections
     CollectionNameMap<recob::Hit>         m_hitCollections;        ///< The Hit collections
     CollectionNameMap<recob::PFParticle>  m_pfParticleCollections; ///< The PFParticle collections
     CollectionNameMap<recob::Cluster>     m_clusterCollections;    ///< The Cluster collections
@@ -174,14 +229,15 @@ template<class T>
 inline ObjectGetter::CollectionHandle<T> ObjectGetter::GetHandle(CollectionNameMap<T> &collectionNameMap, const std::string &label)
 {
     // Try to find the handle in the input map with this label, and return it if it exists
-    const auto iter = collectionNameMap.find(label);
+    const auto validLabel = this->GetValidLabel(label);
+    const auto iter = collectionNameMap.find(validLabel);
     if (iter != collectionNameMap.end())
         return iter->second;
 
     // We haven't already got this collection handle, so let's read it from the event and save for future use
     CollectionHandle<T> handle;
-    m_event.getByLabel(label, handle);
-    collectionNameMap.emplace(label, handle);
+    m_pEvent->getByLabel(validLabel, handle);
+    collectionNameMap.emplace(validLabel, handle);
 
     return handle;
 }
@@ -191,7 +247,7 @@ inline ObjectGetter::CollectionHandle<T> ObjectGetter::GetHandle(CollectionNameM
 template<class A, class B>
 inline ObjectGetter::PtrVector<A> ObjectGetter::GetManyAssociated(const art::Ptr<B> &object, const CollectionHandle<B> &handle, const std::string &label) const
 {
-    art::FindManyP<A> association(handle, m_event, label);
+    art::FindManyP<A> association(handle, *m_pEvent, this->GetValidLabel(label));
     return association.at(object.key());
 }
 
@@ -202,8 +258,9 @@ inline art::Ptr<A> ObjectGetter::GetSingleAssociated(const art::Ptr<B> &object, 
 {
     const auto associatedObjects = this->GetManyAssociated<A>(object, handle, label);
 
-    if (associatedObjects.size() != 1)
-        throw cet::exception("ObjectGetter::GetSingleAssociated") << "Found multiple associated objects, expected 1" << std::endl;
+    const auto nObjects = associatedObjects.size();
+    if (nObjects != 1)
+        throw cet::exception("ObjectGetter::GetSingleAssociated") << "Found " << nObjects << " associated objects, expected 1" << std::endl;
 
     return associatedObjects.front();
 }
