@@ -1,3 +1,9 @@
+/**
+ *  @file
+ *
+ *  @brief  Implementation file for the ObjectGetter class
+ */
+
 #include "anatool/Core/ObjectGetter.h"
 
 namespace ant

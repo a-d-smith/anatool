@@ -1,3 +1,9 @@
+/**
+ *  @file
+ *
+ *  @brief  Header file containing useful typedefs
+ */
+
 #ifndef ANATOOL_TYPES_H
 #define ANATOOL_TYPES_H
 

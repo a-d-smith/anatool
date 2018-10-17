@@ -1,3 +1,9 @@
+/**
+ *  @file
+ *
+ *  @brief  Header file for the ObjectGetter class
+ */
+
 #ifndef ANATOOL_CORE_OBJECT_GETTER_H
 #define ANATOOL_CORE_OBJECT_GETTER_H
 
@@ -19,7 +25,7 @@ public:
     /**
      *  @brief  Default constructor
      *
-     *  @param  event the event
+     *  @param  pEvent the event
      *  @param  defaultLabel the default producer label
      */
     ObjectGetter(const art::Event *pEvent, const std::string &defaultLabel);
@@ -38,7 +44,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated clusters
+     *  @return the associated clusters
      */
     ClusterVector GetAssociatedClusters(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -49,7 +55,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated space points
+     *  @return the associated space points
      */
     SpacePointVector GetAssociatedSpacePoints(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -60,7 +66,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated vertex
+     *  @return the associated vertex
      */
     Vertex_p GetAssociatedVertex(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -71,7 +77,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  if there is an associated track
+     *  @return if there is an associated track
      */
     bool HasAssociatedTrack(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -82,7 +88,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  if there is an associated shower
+     *  @return if there is an associated shower
      */
     bool HasAssociatedShower(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -93,7 +99,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated track
+     *  @return the associated track
      */
     Track_p GetAssociatedTrack(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -104,7 +110,7 @@ public:
      *  @param  pfParticleLabel the label of the PFParticle producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated shower
+     *  @return the associated shower
      */
     Shower_p GetAssociatedShower(const PFParticle_p &particle, const std::string &pfParticleLabel = "", const std::string &associationLabel = "");
     
@@ -115,7 +121,7 @@ public:
      *  @param  clusterLabel the label of the Cluster producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated hits
+     *  @return the associated hits
      */
     HitVector GetAssociatedHits(const Cluster_p &cluster, const std::string &clusterLabel = "", const std::string &associationLabel = "");
     
@@ -126,7 +132,7 @@ public:
      *  @param  spacePointLabel the label of the SpacePoint producer
      *  @param  associationLabel the label of the association producer
      *
-     *  @param  the associated hits
+     *  @return the associated hits
      */
     Hit_p GetAssociatedHit(const SpacePoint_p &spacePoint, const std::string &spacePointLabel = "", const std::string &associationLabel = "");
 
@@ -141,7 +147,7 @@ private:
     using CollectionNameMap = std::unordered_map<std::string, CollectionHandle<T> >;
 
     /**
-     *  @breif  Check if the input label is empty, and if so return the default label
+     *  @brief  Check if the input label is empty, and if so return the default label
      *
      *  @param  label the input label
      *
